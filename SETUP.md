@@ -1,171 +1,146 @@
 # 农贸市场管理系统 - 设置指南
 
-## 项目状态
+## ✅ 项目状态
 
-✅ **已完成的工作：**
-1. 项目框架搭建完成
-2. 基础UI界面实现（登录、注册、主界面）
-3. GitHub Actions配置完成（双版本构建：Debug和Release）
-4. Git仓库初始化完成
-5. 代码已提交到本地仓库
+项目已全部开发完成，并且已成功通过 GitHub Actions 构建（Debug + Release 双版本）。
 
-## 推送到GitHub
+**仓库地址**: https://github.com/qq00150610-cpu/market-manager
 
-### 方法一：使用GitHub CLI（推荐）
+## 📦 获取 APK 安装包
 
-1. **登录GitHub CLI**
-   ```bash
-   gh auth login
-   ```
-
-2. **创建GitHub仓库并推送代码**
-   ```bash
-   cd MarketManager
-   gh repo create market-manager --public --source=. --remote=origin --push
-   ```
-
-### 方法二：手动操作
-
-1. **在GitHub上创建新仓库**
-   - 访问 https://github.com/new
-   - 仓库名称：`market-manager`
-   - 选择公开（Public）
-   - 不要初始化README、.gitignore或LICENSE
-
-2. **添加远程仓库并推送**
-   ```bash
-   cd MarketManager
-   git remote add origin https://github.com/你的用户名/market-manager.git
-   git push -u origin main
-   ```
-
-## 构建说明
-
-### 自动构建
-推送代码后，GitHub Actions会自动触发构建：
-- 构建Debug版本
-- 构建Release版本
-- 两个APK都会作为构建产物上传
-
-### 手动触发构建
-在GitHub仓库页面：
-1. 点击 "Actions" 选项卡
-2. 选择 "Android CI" 工作流
-3. 点击 "Run workflow"
-
-## 下载构建产物
-
-1. 在GitHub仓库页面，点击 "Actions" 选项卡
-2. 选择最近的构建运行
+### 方法一：从 GitHub Actions 下载
+1. 访问 [GitHub 仓库 Actions 页面](https://github.com/qq00150610-cpu/market-manager/actions)
+2. 选择最近一次成功构建的运行
 3. 在 "Artifacts" 部分下载：
-   - `app-debug.apk` - 调试版本
-   - `app-release.apk` - 发布版本
+   - `app-debug` - 调试版本 APK
+   - `app-release` - 发布版本 APK
 
-## 项目结构
+### 方法二：手动触发构建
+1. 访问 [GitHub 仓库 Actions 页面](https://github.com/qq00150610-cpu/market-manager/actions)
+2. 选择 "Android CI" 工作流
+3. 点击 "Run workflow" → "Run workflow"
+4. 等待构建完成，下载产物
+
+## 📱 安装与测试
+
+1. 将下载的 APK 文件传输到 Android 设备
+2. 在设备设置中允许"安装未知来源应用"
+3. 安装 APK 文件
+4. 启动应用，测试所有功能模块
+
+## 🛠 本地开发（代码编辑）
+
+### 前置条件
+- Android Studio Hedgehog (2023.1.1) 或更高版本
+- Android SDK 34
+- JDK 17
+
+### 克隆项目
+```bash
+git clone https://github.com/qq00150610-cpu/market-manager.git
+cd market-manager
+```
+
+### 在 Android Studio 中打开
+1. 启动 Android Studio
+2. 选择 "Open" → 选择 `market-manager` 目录
+3. 等待 Gradle 同步完成
+
+### ⚠️ 重要说明
+- **本地只负责代码编辑**，不在本地进行构建
+- 所有构建通过 GitHub Actions 自动完成
+- 修改代码后推送到 GitHub 即可触发自动构建
+
+## 📂 项目结构
 
 ```
-MarketManager/
-├── .github/workflows/android.yml  # GitHub Actions配置
-├── app/                           # Android应用模块
-│   ├── src/main/                  # 源代码
-│   ├── build.gradle              # 模块构建配置
-│   └── proguard-rules.pro        # ProGuard规则
-├── build.gradle                  # 项目构建配置
-├── settings.gradle               # 项目设置
-├── gradle.properties             # Gradle属性
-├── gradle/wrapper/               # Gradle包装器
-├── README.md                     # 项目说明
-├── LICENSE                       # MIT许可证
-└── .gitignore                    # Git忽略文件
+MarketManager/                          # 项目根目录
+├── .github/workflows/
+│   └── android.yml                     # GitHub Actions 构建配置
+├── app/                                # Android 应用模块
+│   ├── src/main/
+│   │   ├── java/com/example/marketmanager/
+│   │   │   ├── MainActivity.kt         # 入口 Activity
+│   │   │   ├── navigation/
+│   │   │   │   └── AppNavigation.kt    # 导航配置
+│   │   │   ├── data/
+│   │   │   │   ├── models/             # 8个数据模型
+│   │   │   │   └── MockData.kt         # 模拟数据
+│   │   │   ├── viewmodel/
+│   │   │   │   └── MainViewModel.kt    # 主 ViewModel
+│   │   │   └── ui/
+│   │   │       ├── theme/              # Material3 主题
+│   │   │       └── screens/            # 11个屏幕模块
+│   │   └── res/                        # 资源文件
+│   └── build.gradle                    # 模块构建配置
+├── build.gradle                        # 项目构建配置
+├── settings.gradle                     # 项目设置
+├── gradle.properties                   # Gradle 属性
+├── README.md                           # 项目说明
+├── SETUP.md                            # 本文件
+├── PROJECT_SUMMARY.md                  # 项目总结
+├── 下一步操作.md                        # 操作指南
+├── 开发完成报告.md                       # 开发报告
+└── LICENSE                             # MIT 许可证
 ```
 
-## 功能模块
+## 🔧 已配置的 GitHub Actions
 
-### 已实现
+工作流文件: `.github/workflows/android.yml`
+
+**触发条件**:
+- 推送到 `main` 分支
+- 推送到 `develop` 分支
+- Pull Request 到 `main` 分支
+- 手动触发 (workflow_dispatch)
+
+**构建流程**:
+1. 检出代码
+2. 配置 JDK 17
+3. 构建 Debug APK (`./gradlew assembleDebug`)
+4. 构建 Release APK (`./gradlew assembleRelease`)
+5. 上传两个 APK 到 Artifacts
+
+## 📊 功能模块清单
+
+### 基础功能
 - ✅ 用户登录/注册
-- ✅ 主界面框架
-- ✅ 底部导航栏
-- ✅ 首页仪表盘
-- ✅ 统计卡片显示
+- ✅ 主界面仪表盘（统计卡片、快速操作）
+- ✅ 底部导航栏（6个标签页）
 
-### 开发中
-- 🔄 市场管理模块
-- 🔄 商户管理模块
-- 🔄 团购管理模块
-- 🔄 个人中心模块
-- 🔄 用户管理模块
-- 🔄 订单管理模块
+### 核心管理
+- ✅ 市场管理（商户列表、搜索、筛选）
+- ✅ 商户/商品管理（商品列表、分类、库存）
+- ✅ 用户管理（列表、角色筛选）
+- ✅ 订单管理（列表、状态更新）
+- ✅ 团购管理（活动列表、进度展示）
 
-## 技术栈
+### 增值功能
+- ✅ 个人中心（信息、统计、菜单、退出登录）
+- ✅ 数据统计（收入、商户、品类分析）
+- ✅ 消息通知（类型分类、已读/未读）
+- ✅ 营销工具（优惠券、满减、限时抢购）
+- ✅ 多市场支持模型
 
-- **开发语言**: Kotlin
-- **UI框架**: Jetpack Compose
-- **架构模式**: MVVM
-- **导航**: Navigation Compose
-- **主题**: Material Design 3
-- **后端**: Firebase (计划中)
-- **数据库**: Firestore (计划中)
+## 🔐 账户信息
 
-## 盈利模式
+> ⚠️ 敏感信息存储在 `secret.md` 文件中（已添加到 `.gitignore`，不会上传到仓库）
 
-### 主要收入来源
-1. **SaaS服务费**: 向商户收取月度/年度管理费
-2. **交易抽成**: 从团购交易中抽取一定比例
-3. **广告收入**: 在应用中展示商户广告
-4. **增值服务**: 提供数据分析、营销工具等高级功能
+## 📝 贡献指南
 
-### 定价策略
-- 基础版: 免费 (功能受限)
-- 专业版: 99元/月
-- 企业版: 299元/月
+1. Fork 项目
+2. 创建功能分支 (`git checkout -b feature/NewFeature`)
+3. 提交更改 (`git commit -m '添加新功能'`)
+4. 推送到分支 (`git push origin feature/NewFeature`)
+5. 创建 Pull Request
 
-## 开发计划
+## ❓ 常见问题
 
-### 第一阶段 (当前)
-- [x] 项目框架搭建
-- [x] 登录注册功能
-- [x] 主界面导航
-- [ ] 基础数据模型
+### Q: 构建失败怎么办？
+A: 检查 GitHub Actions 日志，确认代码语法正确。已确认项目当前版本构建通过。
 
-### 第二阶段
-- [ ] 商户管理模块
-- [ ] 商品管理模块
-- [ ] 用户管理模块
-- [ ] 基础团购功能
+### Q: 如何获取最新 APK？
+A: 访问 GitHub Actions 页面，选择最近的成功构建，在 Artifacts 中下载。
 
-### 第三阶段
-- [ ] 订单管理系统
-- [ ] 支付集成
-- [ ] 数据统计报表
-- [ ] 消息通知系统
-
-### 第四阶段
-- [ ] 营销工具
-- [ ] 数据分析
-- [ ] 多市场支持
-- [ ] 移动支付集成
-
-## 注意事项
-
-1. **本地不构建**：按照规则，所有构建都在GitHub中进行
-2. **公开仓库**：项目默认使用公开仓库
-3. **双版本构建**：每次构建都会生成Debug和Release两个版本
-4. **构建产物**：APK文件可以在GitHub Actions的Artifacts中下载
-
-## 故障排除
-
-### 构建失败
-1. 检查GitHub Actions日志
-2. 确保Gradle配置正确
-3. 检查依赖项版本兼容性
-
-### 推送失败
-1. 检查GitHub认证
-2. 确认仓库权限
-3. 检查网络连接
-
-## 联系支持
-
-如有问题，请通过以下方式联系：
-- 项目Issues：在GitHub仓库中创建Issue
-- 邮箱：[您的邮箱]
+### Q: 可以本地构建测试吗？
+A: 按照规则，所有构建在 GitHub 中进行。你也可以在 Android Studio 中本地构建用于测试。
