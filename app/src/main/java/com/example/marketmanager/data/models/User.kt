@@ -4,13 +4,8 @@ data class User(
     val id: String,
     val name: String,
     val email: String,
-    val phone: String,
-    val role: UserRole,
-    val registrationDate: String,
-    val lastLogin: String? = null,
-    val avatarUrl: String? = null
+    val phone: String = "",
+    val role: String = "CONSUMER",
+    @com.google.gson.annotations.SerializedName("registration_date") val registrationDate: String = "",
+    @com.google.gson.annotations.SerializedName("last_login") val lastLogin: String? = null
 )
-
-enum class UserRole {
-    ADMIN, MERCHANT, CONSUMER
-}

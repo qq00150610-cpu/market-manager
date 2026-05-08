@@ -54,21 +54,25 @@ fun ProfileScreen(
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 
+                val currentUser = viewModel?.let { vm ->
+                    vm.currentUser.collectAsState().value
+                }
+                
                 Text(
-                    text = "管理员",
+                    text = currentUser?.name ?: "管理员",
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
                 
                 Text(
-                    text = "admin@market.com",
+                    text = currentUser?.email ?: "admin@market.com",
                     style = MaterialTheme.typography.bodyLarge,
                     color = Color.White.copy(alpha = 0.8f)
                 )
                 
                 Text(
-                    text = "农贸市场管理系统",
+                    text = "角色: ${when (currentUser?.role?.name) { "ADMIN" -> "管理员"; "MERCHANT" -> "商户"; else -> "消费者" }}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.White.copy(alpha = 0.6f),
                     modifier = Modifier.padding(top = 8.dp)

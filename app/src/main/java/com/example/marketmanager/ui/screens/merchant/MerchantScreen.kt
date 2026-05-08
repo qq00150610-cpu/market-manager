@@ -13,7 +13,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.marketmanager.data.models.Product
-import com.example.marketmanager.data.models.ProductStatus
 import com.example.marketmanager.ui.theme.Primary
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -25,60 +24,52 @@ fun MerchantScreen(
 ) {
     var searchQuery by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf<String?>(null) }
-    
+
     val categories = products.map { it.category }.distinct()
+
     val filteredProducts = products.filter { product ->
-        (searchQuery.isEmpty() || 
-         product.name.contains(searchQuery, ignoreCase = true)) &&
-        (selectedCategory == null || product.category == selectedCategory)
+        val matchesSearch = searchQuery.isEmpty() ||
+            product.name.contains(searchQuery, ignoreCase = true)
+        val matchesCategory = selectedCategory == null || product.category == selectedCategory
+        matchesSearch && matchesCategory
     }
-    
+
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("商品管理", color = MaterialTheme.colorScheme.onPrimary) },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary)
+            )
+        },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = onAddProduct,
-                containerColor = Primary
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "添加商品",
-                    tint = Color.White
-                )
+            FloatingActionButton(onClick = onAddProduct, containerColor = Primary) {
+                Icon(Icons.Default.Add, contentDescription = "添加商品", tint = Color.White)
             }
         }
-    ) { innerPadding ->
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
+                .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            // 搜索栏
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                label = { Text("搜索商品") },
-                placeholder = { Text("输入商品名称") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "搜索") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                singleLine = true
+                placeholder = { Text("搜索商品名称...") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
             )
-            
-            // 分类筛选
+
+            Spacer(Modifier.height(12.dp))
+
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                FilterChip(
-                    selected = selectedCategory == null,
-                    onClick = { selectedCategory = null },
-                    label = { Text("全部") }
-                )
-                categories.forEach { category ->
+                FilterChip(selected = selectedCategory == null, onClick = { selectedCategory = null }, label = { Text("全部") })
+                categories.take(3).forEach { category ->
                     FilterChip(
                         selected = selectedCategory == category,
                         onClick = { selectedCategory = category },
@@ -86,57 +77,23 @@ fun MerchantScreen(
                     )
                 }
             }
-            
-            // 统计信息
+
+            Spacer(Modifier.height(16.dp))
+
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                StatCard(
-                    title = "总商品",
-                    value = products.size.toString(),
-                    modifier = Modifier.weight(1f)
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                StatCard(
-                    title = "在售",
-                    value = products.count { it.status == ProductStatus.AVAILABLE }.toString(),
-                    modifier = Modifier.weight(1f)
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                StatCard(
-                    title = "缺货",
-                    value = products.count { it.status == ProductStatus.OUT_OF_STOCK }.toString(),
-                    modifier = Modifier.weight(1f)
-                )
+                StatCard("总商品", products.size.toString(), Modifier.weight(1f))
+                StatCard("可售", products.count { it.status == "AVAILABLE" }.toString(), Modifier.weight(1f))
+                StatCard("缺货", products.count { it.status == "OUT_OF_STOCK" }.toString(), Modifier.weight(1f))
             }
-            
-            // 商品列表
-            if (filteredProducts.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "没有找到商品",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                    )
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    items(filteredProducts) { product ->
-                        ProductCard(
-                            product = product,
-                            onClick = { onProductClick(product) }
-                        )
-                    }
+
+            Spacer(Modifier.height(16.dp))
+
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(filteredProducts) { product ->
+                    ProductCard(product = product, onClick = { onProductClick(product) })
                 }
             }
         }
@@ -144,103 +101,39 @@ fun MerchantScreen(
 }
 
 @Composable
-fun StatCard(
-    title: String,
-    value: String,
-    modifier: Modifier = Modifier
-) {
+fun StatCard(title: String, value: String, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 4.dp
-        )
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxWidth().padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-            )
-            Text(
-                text = value,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = Primary
-            )
+            Text(value, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = Primary)
+            Text(title, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductCard(
-    product: Product,
-    onClick: () -> Unit
-) {
+fun ProductCard(product: Product, onClick: () -> Unit) {
     Card(
         onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 8.dp),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 2.dp
-        )
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = product.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                
-                Text(
-                    text = "¥${product.price}/${product.unit}",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = Primary
-                )
-            }
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "分类: ${product.category}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Text(
-                    text = "库存: ${product.stock}${product.unit}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-            
-            if (product.description != null) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = product.description,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                )
+            Icon(Icons.Default.ShoppingCart, contentDescription = null, tint = Primary, modifier = Modifier.size(40.dp))
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
+                Text(product.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text("¥${product.price}/${product.unit}", style = MaterialTheme.typography.bodyMedium)
+                Text("库存: ${product.stock}${product.unit}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
             }
         }
     }

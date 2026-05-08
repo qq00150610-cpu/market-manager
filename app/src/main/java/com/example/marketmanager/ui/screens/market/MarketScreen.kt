@@ -13,7 +13,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.marketmanager.data.models.Merchant
-import com.example.marketmanager.data.models.MerchantStatus
 import com.example.marketmanager.ui.theme.Primary
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -24,54 +23,54 @@ fun MarketScreen(
     onMerchantClick: (Merchant) -> Unit
 ) {
     var searchQuery by remember { mutableStateOf("") }
-    var selectedStatus by remember { mutableStateOf<MerchantStatus?>(null) }
-    
+    var selectedStatus by remember { mutableStateOf<String?>(null) }
+
     val filteredMerchants = merchants.filter { merchant ->
-        (searchQuery.isEmpty() || 
-         merchant.name.contains(searchQuery, ignoreCase = true) ||
-         merchant.owner.contains(searchQuery, ignoreCase = true)) &&
-        (selectedStatus == null || merchant.status == selectedStatus)
+        val matchesSearch = searchQuery.isEmpty() ||
+            merchant.name.contains(searchQuery, ignoreCase = true) ||
+            merchant.owner.contains(searchQuery, ignoreCase = true)
+        val matchesStatus = selectedStatus == null || merchant.status == selectedStatus
+        matchesSearch && matchesStatus
     }
-    
+
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("市场管理", color = MaterialTheme.colorScheme.onPrimary) },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary)
+            )
+        },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onAddMerchant,
                 containerColor = Primary
             ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "添加商户",
-                    tint = Color.White
-                )
+                Icon(Icons.Default.Add, contentDescription = "添加商户", tint = Color.White)
             }
         }
-    ) { innerPadding ->
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
+                .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            // 搜索栏
+            // 搜索框
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                label = { Text("搜索商户") },
-                placeholder = { Text("输入商户名称或负责人") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "搜索") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                singleLine = true
+                placeholder = { Text("搜索商户名称、负责人...") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
             )
-            
+
+            Spacer(modifier = Modifier.height(12.dp))
+
             // 状态筛选
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 FilterChip(
                     selected = selectedStatus == null,
@@ -79,81 +78,42 @@ fun MarketScreen(
                     label = { Text("全部") }
                 )
                 FilterChip(
-                    selected = selectedStatus == MerchantStatus.ACTIVE,
-                    onClick = { selectedStatus = MerchantStatus.ACTIVE },
-                    label = { Text("营业中") },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Color(0xFF4CAF50)
-                    )
+                    selected = selectedStatus == "ACTIVE",
+                    onClick = { selectedStatus = "ACTIVE" },
+                    label = { Text("营业中") }
                 )
                 FilterChip(
-                    selected = selectedStatus == MerchantStatus.INACTIVE,
-                    onClick = { selectedStatus = MerchantStatus.INACTIVE },
-                    label = { Text("已关闭") },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Color(0xFFF44336)
-                    )
+                    selected = selectedStatus == "INACTIVE",
+                    onClick = { selectedStatus = "INACTIVE" },
+                    label = { Text("已关闭") }
                 )
                 FilterChip(
-                    selected = selectedStatus == MerchantStatus.PENDING,
-                    onClick = { selectedStatus = MerchantStatus.PENDING },
-                    label = { Text("待审核") },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Color(0xFFFFC107)
-                    )
+                    selected = selectedStatus == "PENDING",
+                    onClick = { selectedStatus = "PENDING" },
+                    label = { Text("待审核") }
                 )
             }
-            
-            // 统计信息
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 统计卡片
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                StatCard(
-                    title = "总商户",
-                    value = merchants.size.toString(),
-                    modifier = Modifier.weight(1f)
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                StatCard(
-                    title = "营业中",
-                    value = merchants.count { it.status == MerchantStatus.ACTIVE }.toString(),
-                    modifier = Modifier.weight(1f)
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                StatCard(
-                    title = "待审核",
-                    value = merchants.count { it.status == MerchantStatus.PENDING }.toString(),
-                    modifier = Modifier.weight(1f)
-                )
+                StatCard("总商户", merchants.size.toString(), Modifier.weight(1f))
+                StatCard("营业中", merchants.count { it.status == "ACTIVE" }.toString(), Modifier.weight(1f))
+                StatCard("待审核", merchants.count { it.status == "PENDING" }.toString(), Modifier.weight(1f))
             }
-            
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             // 商户列表
-            if (filteredMerchants.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "没有找到商户",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                    )
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    items(filteredMerchants) { merchant ->
-                        MerchantCard(
-                            merchant = merchant,
-                            onClick = { onMerchantClick(merchant) }
-                        )
-                    }
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(filteredMerchants) { merchant ->
+                    MerchantCard(merchant = merchant, onClick = { onMerchantClick(merchant) })
                 }
             }
         }
@@ -161,128 +121,54 @@ fun MarketScreen(
 }
 
 @Composable
-fun StatCard(
-    title: String,
-    value: String,
-    modifier: Modifier = Modifier
-) {
+fun StatCard(title: String, value: String, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 4.dp
-        )
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxWidth().padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-            )
-            Text(
-                text = value,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = Primary
-            )
+            Text(text = value, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = Primary)
+            Text(text = title, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MerchantCard(
-    merchant: Merchant,
-    onClick: () -> Unit
-) {
+fun MerchantCard(merchant: Merchant, onClick: () -> Unit) {
     Card(
         onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 8.dp),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 2.dp
-        )
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = merchant.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                
-                StatusChip(status = merchant.status)
+            Icon(Icons.Default.Store, contentDescription = null, tint = Primary, modifier = Modifier.size(40.dp))
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
+                Text(merchant.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text("负责人: ${merchant.owner} | ${merchant.category}", style = MaterialTheme.typography.bodySmall)
+                Text("摊位: ${merchant.stallNumber}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
             }
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "负责人: ${merchant.owner}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Text(
-                    text = "摊位: ${merchant.stallNumber}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-            
-            Spacer(modifier = Modifier.height(4.dp))
-            
-            Text(
-                text = "分类: ${merchant.category}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-            )
-            
-            if (merchant.description != null) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = merchant.description,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                )
-            }
+            StatusChip(merchant.status)
         }
     }
 }
 
 @Composable
-fun StatusChip(status: MerchantStatus) {
-    val (backgroundColor, text) = when (status) {
-        MerchantStatus.ACTIVE -> Color(0xFF4CAF50) to "营业中"
-        MerchantStatus.INACTIVE -> Color(0xFFF44336) to "已关闭"
-        MerchantStatus.PENDING -> Color(0xFFFFC107) to "待审核"
+fun StatusChip(status: String) {
+    val (color, text) = when (status) {
+        "ACTIVE" -> Color(0xFF4CAF50) to "营业中"
+        "INACTIVE" -> Color(0xFFF44336) to "已关闭"
+        "PENDING" -> Color(0xFFFFC107) to "待审核"
+        else -> Color.Gray to status
     }
-    
-    Surface(
-        shape = MaterialTheme.shapes.small,
-        color = backgroundColor
-    ) {
-        Text(
-            text = text,
-            color = Color.White,
-            style = MaterialTheme.typography.labelSmall,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-        )
+    Surface(color = color.copy(alpha = 0.15f), shape = MaterialTheme.shapes.small) {
+        Text(text = text, color = color, style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp))
     }
 }

@@ -13,7 +13,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.marketmanager.data.models.GroupBuy
-import com.example.marketmanager.data.models.GroupBuyStatus
 import com.example.marketmanager.ui.theme.Primary
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -23,120 +22,57 @@ fun GroupBuyScreen(
     onAddGroupBuy: () -> Unit,
     onGroupBuyClick: (GroupBuy) -> Unit
 ) {
-    var selectedStatus by remember { mutableStateOf<GroupBuyStatus?>(null) }
-    
-    val filteredGroupBuys = groupBuys.filter { groupBuy ->
-        selectedStatus == null || groupBuy.status == selectedStatus
+    var selectedStatus by remember { mutableStateOf<String?>(null) }
+
+    val filteredGroupBuys = groupBuys.filter {
+        selectedStatus == null || it.status == selectedStatus
     }
-    
+
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("团购管理", color = MaterialTheme.colorScheme.onPrimary) },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary)
+            )
+        },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = onAddGroupBuy,
-                containerColor = Primary
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "创建团购",
-                    tint = Color.White
-                )
+            FloatingActionButton(onClick = onAddGroupBuy, containerColor = Primary) {
+                Icon(Icons.Default.Add, contentDescription = "创建团购", tint = Color.White)
             }
         }
-    ) { innerPadding ->
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
+                .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            // 状态筛选
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                FilterChip(
-                    selected = selectedStatus == null,
-                    onClick = { selectedStatus = null },
-                    label = { Text("全部") }
-                )
-                FilterChip(
-                    selected = selectedStatus == GroupBuyStatus.ACTIVE,
-                    onClick = { selectedStatus = GroupBuyStatus.ACTIVE },
-                    label = { Text("进行中") },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Color(0xFF4CAF50)
-                    )
-                )
-                FilterChip(
-                    selected = selectedStatus == GroupBuyStatus.UPCOMING,
-                    onClick = { selectedStatus = GroupBuyStatus.UPCOMING },
-                    label = { Text("即将开始") },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Color(0xFF2196F3)
-                    )
-                )
-                FilterChip(
-                    selected = selectedStatus == GroupBuyStatus.ENDED,
-                    onClick = { selectedStatus = GroupBuyStatus.ENDED },
-                    label = { Text("已结束") },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Color(0xFF9E9E9E)
-                    )
-                )
+                FilterChip(selected = selectedStatus == null, onClick = { selectedStatus = null }, label = { Text("全部") })
+                FilterChip(selected = selectedStatus == "ACTIVE", onClick = { selectedStatus = "ACTIVE" }, label = { Text("进行中") })
+                FilterChip(selected = selectedStatus == "UPCOMING" || selectedStatus == "SCHEDULED", onClick = { selectedStatus = "ACTIVE" }, label = { Text("即将开始") })
+                FilterChip(selected = selectedStatus == "ENDED" || selectedStatus == "CANCELLED", onClick = { selectedStatus = "ENDED" }, label = { Text("已结束") })
             }
-            
-            // 统计信息
+
+            Spacer(Modifier.height(16.dp))
+
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                StatCard(
-                    title = "总团购",
-                    value = groupBuys.size.toString(),
-                    modifier = Modifier.weight(1f)
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                StatCard(
-                    title = "进行中",
-                    value = groupBuys.count { it.status == GroupBuyStatus.ACTIVE }.toString(),
-                    modifier = Modifier.weight(1f)
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                StatCard(
-                    title = "即将开始",
-                    value = groupBuys.count { it.status == GroupBuyStatus.UPCOMING }.toString(),
-                    modifier = Modifier.weight(1f)
-                )
+                StatCard("总活动", groupBuys.size.toString(), Modifier.weight(1f))
+                StatCard("进行中", groupBuys.count { it.status == "ACTIVE" }.toString(), Modifier.weight(1f))
+                StatCard("即将开始", groupBuys.count { it.status == "SCHEDULED" || it.status == "UPCOMING" }.toString(), Modifier.weight(1f))
             }
-            
-            // 团购列表
-            if (filteredGroupBuys.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "没有找到团购活动",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                    )
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    items(filteredGroupBuys) { groupBuy ->
-                        GroupBuyCard(
-                            groupBuy = groupBuy,
-                            onClick = { onGroupBuyClick(groupBuy) }
-                        )
-                    }
+
+            Spacer(Modifier.height(16.dp))
+
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(filteredGroupBuys) { groupBuy ->
+                    GroupBuyCard(groupBuy = groupBuy, onClick = { onGroupBuyClick(groupBuy) })
                 }
             }
         }
@@ -144,159 +80,57 @@ fun GroupBuyScreen(
 }
 
 @Composable
-fun StatCard(
-    title: String,
-    value: String,
-    modifier: Modifier = Modifier
-) {
+fun StatCard(title: String, value: String, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 4.dp
-        )
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxWidth().padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-            )
-            Text(
-                text = value,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = Primary
-            )
+            Text(value, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = Primary)
+            Text(title, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GroupBuyCard(
-    groupBuy: GroupBuy,
-    onClick: () -> Unit
-) {
+fun GroupBuyCard(groupBuy: GroupBuy, onClick: () -> Unit) {
     Card(
         onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 8.dp),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 2.dp
-        )
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
+        Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = groupBuy.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                
-                StatusChip(status = groupBuy.status)
+                Text(groupBuy.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                StatusChip(groupBuy.status)
             }
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column {
-                    Text(
-                        text = "原价: ¥${groupBuy.originalPrice}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                    )
-                    Text(
-                        text = "团购价: ¥${groupBuy.groupPrice}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF4CAF50)
-                    )
-                }
-                
-                Column(horizontalAlignment = Alignment.End) {
-                    Text(
-                        text = "进度: ${groupBuy.currentParticipants}/${groupBuy.minParticipants}",
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                    
-                    val progressValue = (groupBuy.currentParticipants.toFloat() / groupBuy.minParticipants).coerceIn(0f, 1f)
-                    LinearProgressIndicator(
-                        progress = progressValue,
-                        modifier = Modifier
-                            .width(100.dp)
-                            .padding(top = 4.dp)
-                    )
-                }
-            }
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "开始: ${groupBuy.startTime}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                )
-                Text(
-                    text = "结束: ${groupBuy.endTime}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                )
-            }
-            
-            if (groupBuy.description != null) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = groupBuy.description,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                )
-            }
+            Spacer(Modifier.height(8.dp))
+            Text("原价: ¥${groupBuy.originalPrice}  团购价: ¥${groupBuy.groupPrice}", style = MaterialTheme.typography.bodyMedium)
+            Text("参与人数: ${groupBuy.currentParticipants}/${groupBuy.minParticipants}", style = MaterialTheme.typography.bodySmall)
+            Text("时间: ${groupBuy.startTime.take(10)} ~ ${groupBuy.endTime.take(10)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
         }
     }
 }
 
 @Composable
-fun StatusChip(status: GroupBuyStatus) {
-    val (backgroundColor, text) = when (status) {
-        GroupBuyStatus.ACTIVE -> Color(0xFF4CAF50) to "进行中"
-        GroupBuyStatus.UPCOMING -> Color(0xFF2196F3) to "即将开始"
-        GroupBuyStatus.ENDED -> Color(0xFF9E9E9E) to "已结束"
-        GroupBuyStatus.CANCELLED -> Color(0xFFF44336) to "已取消"
+fun StatusChip(status: String) {
+    val (color, text) = when (status) {
+        "ACTIVE" -> Color(0xFF4CAF50) to "进行中"
+        "UPCOMING" -> Color(0xFF2196F3) to "即将开始"
+        "SCHEDULED" -> Color(0xFF2196F3) to "即将开始"
+        "ENDED" -> Color(0xFF9E9E9E) to "已结束"
+        "CANCELLED" -> Color(0xFFF44336) to "已取消"
+        else -> Color.Gray to status
     }
-    
-    Surface(
-        shape = MaterialTheme.shapes.small,
-        color = backgroundColor
-    ) {
-        Text(
-            text = text,
-            color = Color.White,
-            style = MaterialTheme.typography.labelSmall,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-        )
+    Surface(color = color.copy(alpha = 0.15f), shape = MaterialTheme.shapes.small) {
+        Text(text = text, color = color, style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp))
     }
 }

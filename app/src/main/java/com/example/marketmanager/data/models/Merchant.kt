@@ -6,14 +6,10 @@ data class Merchant(
     val owner: String,
     val phone: String,
     val address: String,
-    val stallNumber: String,
+    @com.google.gson.annotations.SerializedName("stall_number") val stallNumber: String,
     val category: String,
-    val status: MerchantStatus,
-    val registrationDate: String,
-    val businessLicense: String? = null,
+    val status: String,
+    @com.google.gson.annotations.SerializedName("created_at") val registrationDate: String = "",
+    @com.google.gson.annotations.SerializedName("business_license") val businessLicense: String? = null,
     val description: String? = null
 )
-
-enum class MerchantStatus {
-    ACTIVE, INACTIVE, PENDING
-}

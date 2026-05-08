@@ -122,8 +122,6 @@ fun MainScreen(
                     )
                 }
                 showStatisticsScreen -> StatisticsScreen(
-                    stats = viewModel.merchantStats,
-                    revenue = viewModel.revenueStats,
                     onBack = { showStatisticsScreen = false }
                 )
                 else -> when (selectedTab) {

@@ -1,8 +1,8 @@
 package com.example.marketmanager.ui.screens.stats
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -13,258 +13,118 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.marketmanager.data.models.*
+import com.example.marketmanager.data.api.StatsOverviewResponse
+import com.example.marketmanager.ui.theme.Primary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatisticsScreen(
-    stats: MerchantStats,
-    revenue: RevenueStats,
+    stats: StatsOverviewResponse? = null,
     onBack: () -> Unit
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("数据统计") },
+                title = { Text("数据统计", color = MaterialTheme.colorScheme.onPrimary) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "返回", tint = MaterialTheme.colorScheme.onPrimary)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary)
             )
         }
-    ) { padding ->
-        LazyColumn(
+    ) { paddingValues ->
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(paddingValues)
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState())
         ) {
-            // 收入总览
-            item {
-                RevenueCard(revenue)
+            // 概览统计
+            Text("概览", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 12.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                StatCard("商户总数", "${stats?.merchants ?: 0}", Modifier.weight(1f))
+                StatCard("活跃商户", "${stats?.activeMerchants ?: 0}", Modifier.weight(1f))
             }
 
-            // 商户统计
-            item {
-                MerchantStatsCard(stats)
+            Spacer(Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                StatCard("商品总数", "${stats?.products ?: 0}", Modifier.weight(1f))
+                StatCard("用户总数", "${stats?.users ?: 0}", Modifier.weight(1f))
             }
 
-            // 品类分布
-            item {
-                CategoryDistributionCard(stats.topCategories)
+            Spacer(Modifier.height(24.dp))
+
+            // 订单统计
+            Text("订单", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 12.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                StatCard("总订单", "${stats?.orders ?: 0}", Modifier.weight(1f))
+                StatCard("今日订单", "${stats?.todayOrders ?: 0}", Modifier.weight(1f))
             }
 
-            // 每日收入趋势
-            item {
-                Text(
-                    text = "每日收入趋势",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
+            Spacer(Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                StatCard("待处理", "${stats?.pendingOrders ?: 0}", Modifier.weight(1f))
+                StatCard("团购活动", "${stats?.groupBuys ?: 0}", Modifier.weight(1f))
             }
 
-            items(revenue.dailyRevenue.takeLast(7)) { dailyStat ->
-                DailyRevenueCard(dailyStat)
+            Spacer(Modifier.height(24.dp))
+
+            // 收入统计
+            Text("收入", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 12.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                StatCard("总收入", "¥${stats?.totalRevenue ?: "0.00"}", Modifier.weight(1f))
+                StatCard("今日收入", "¥${stats?.todayRevenue ?: "0.00"}", Modifier.weight(1f))
             }
         }
     }
 }
 
 @Composable
-fun RevenueCard(revenue: RevenueStats) {
+fun StatCard(title: String, value: String, modifier: Modifier = Modifier) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primary
-        )
+        modifier = modifier,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(
-            modifier = Modifier.padding(20.dp)
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "总收入",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onPrimary
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "¥%.2f".format(revenue.totalRevenue),
-                style = MaterialTheme.typography.headlineLarge,
+                text = value,
+                style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onPrimary
+                color = Primary
             )
-            Spacer(modifier = Modifier.height(12.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column {
-                    Text(
-                        text = "日均收入",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
-                    )
-                    Text(
-                        text = "¥%.2f".format(revenue.averageDailyRevenue),
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                }
-                Column(horizontalAlignment = Alignment.End) {
-                    Text(
-                        text = "增长率",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
-                    )
-                    Text(
-                        text = if (revenue.revenueGrowth >= 0) "+%.1f%%".format(revenue.revenueGrowth)
-                               else "%.1f%%".format(revenue.revenueGrowth),
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.SemiBold,
-                        color = if (revenue.revenueGrowth >= 0) Color(0xFF4CAF50)
-                                else Color(0xFFFF5252)
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun MerchantStatsCard(stats: MerchantStats) {
-    Card(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(
-            modifier = Modifier.padding(20.dp)
-        ) {
+            Spacer(Modifier.height(4.dp))
             Text(
-                text = "商户统计",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                text = title,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
             )
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                StatItem("总数", stats.totalMerchants.toString(), MaterialTheme.colorScheme.primary)
-                StatItem("营业中", stats.activeMerchants.toString(), Color(0xFF4CAF50))
-                StatItem("待审核", stats.pendingMerchants.toString(), Color(0xFFFFC107))
-                StatItem("已关闭", stats.inactiveMerchants.toString(), Color(0xFFFF5252))
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                text = "商户增长率: +%.1f%%".format(stats.merchantGrowth),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
-}
-
-@Composable
-fun StatItem(label: String, value: String, color: Color) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(
-            text = value,
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            color = color
-        )
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-}
-
-@Composable
-fun CategoryDistributionCard(categories: List<CategoryStat>) {
-    Card(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(
-            modifier = Modifier.padding(20.dp)
-        ) {
-            Text(
-                text = "品类分布",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            categories.forEach { category ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = category.category,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Text(
-                        text = "${category.count} (%.1f%%)".format(category.percentage),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                val progressValue = (category.percentage / 100).toFloat()
-                LinearProgressIndicator(
-                    progress = progressValue,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(8.dp)
-                        .padding(vertical = 2.dp),
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun DailyRevenueCard(dailyStat: DailyStats) {
-    Card(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column {
-                Text(
-                    text = dailyStat.date,
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Text(
-                    text = "${dailyStat.totalOrders} 笔订单",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            Column(horizontalAlignment = Alignment.End) {
-                Text(
-                    text = "¥%.2f".format(dailyStat.totalIncome),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Text(
-                    text = "${dailyStat.activeMerchants} 商户活跃",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
         }
     }
 }
