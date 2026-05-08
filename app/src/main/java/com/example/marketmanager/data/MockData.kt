@@ -8,7 +8,7 @@ object MockData {
             id = "1",
             name = "新鲜蔬菜店",
             owner = "张三",
-            phone: "13800138001",
+            phone = "13800138001",
             address: "农贸市场A区1号",
             stallNumber = "A-001",
             category = "蔬菜",
@@ -21,7 +21,7 @@ object MockData {
             id = "2",
             name = "优质水果铺",
             owner = "李四",
-            phone: "13800138002",
+            phone = "13800138002",
             address: "农贸市场B区5号",
             stallNumber = "B-005",
             category = "水果",
@@ -34,7 +34,7 @@ object MockData {
             id = "3",
             name = "老王肉铺",
             owner = "王五",
-            phone: "13800138003",
+            phone = "13800138003",
             address: "农贸市场C区10号",
             stallNumber = "C-010",
             category = "肉类",
@@ -83,7 +83,7 @@ object MockData {
             id = "1",
             name = "管理员",
             email = "admin@market.com",
-            phone: "13900139000",
+            phone = "13900139000",
             role = UserRole.ADMIN,
             registrationDate = "2024-01-01"
         ),
@@ -91,7 +91,7 @@ object MockData {
             id = "2",
             name = "张三",
             email = "zhangsan@example.com",
-            phone: "13800138001",
+            phone = "13800138001",
             role = UserRole.MERCHANT,
             registrationDate = "2024-01-15"
         ),
@@ -99,7 +99,7 @@ object MockData {
             id = "3",
             name = "消费者A",
             email = "consumer@example.com",
-            phone: "13700137000",
+            phone = "13700137000",
             role = UserRole.CONSUMER,
             registrationDate = "2024-02-01"
         )
