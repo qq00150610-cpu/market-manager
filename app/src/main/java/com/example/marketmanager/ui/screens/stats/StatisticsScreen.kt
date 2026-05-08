@@ -214,14 +214,14 @@ fun CategoryDistributionCard(categories: List<CategoryStat>) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+                @Suppress("DEPRECATION")
                 LinearProgressIndicator(
                     progress = { (category.percentage / 100).toFloat() },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(8.dp)
                         .padding(vertical = 2.dp),
-                    color = MaterialTheme.colorScheme.primary,
-                    trackColor = MaterialTheme.colorScheme.surfaceVariant
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }

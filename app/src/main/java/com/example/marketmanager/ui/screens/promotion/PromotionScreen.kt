@@ -233,6 +233,7 @@ fun PromotionCard(promotion: Promotion) {
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
+                @Suppress("DEPRECATION")
                 LinearProgressIndicator(
                     progress = {
                         (promotion.usageCount.toFloat() / promotion.maxUsage)
@@ -241,8 +242,7 @@ fun PromotionCard(promotion: Promotion) {
                         .fillMaxWidth()
                         .height(6.dp)
                         .padding(top = 4.dp),
-                    color = MaterialTheme.colorScheme.primary,
-                    trackColor = MaterialTheme.colorScheme.surfaceVariant
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }

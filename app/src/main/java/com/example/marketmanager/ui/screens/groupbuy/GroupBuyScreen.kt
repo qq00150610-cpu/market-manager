@@ -238,15 +238,14 @@ fun GroupBuyCard(
                         style = MaterialTheme.typography.bodySmall
                     )
                     
+                    @Suppress("DEPRECATION")
                     LinearProgressIndicator(
                         progress = { 
                             (groupBuy.currentParticipants.toFloat() / groupBuy.minParticipants).coerceIn(0f, 1f) 
                         },
                         modifier = Modifier
                             .width(100.dp)
-                            .padding(top = 4.dp),
-                        color = Primary,
-                        trackColor = Color.LightGray
+                            .padding(top = 4.dp)
                     )
                 }
             }
