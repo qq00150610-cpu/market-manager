@@ -72,7 +72,7 @@ fun ProfileScreen(
                 )
                 
                 Text(
-                    text = "角色: ${when (currentUser?.role?.name) { "ADMIN" -> "管理员"; "MERCHANT" -> "商户"; else -> "消费者" }}",
+                    text = "角色: ${when (currentUser?.role) { "ADMIN" -> "管理员"; "MERCHANT" -> "商户"; else -> "消费者" }}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.White.copy(alpha = 0.6f),
                     modifier = Modifier.padding(top = 8.dp)

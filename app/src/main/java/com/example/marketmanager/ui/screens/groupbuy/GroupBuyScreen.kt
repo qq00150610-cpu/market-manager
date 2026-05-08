@@ -80,6 +80,7 @@ fun GroupBuyScreen(
 }
 
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 fun StatCard(title: String, value: String, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier,
@@ -97,6 +98,7 @@ fun StatCard(title: String, value: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 fun GroupBuyCard(groupBuy: GroupBuy, onClick: () -> Unit) {
     Card(
         onClick = onClick,

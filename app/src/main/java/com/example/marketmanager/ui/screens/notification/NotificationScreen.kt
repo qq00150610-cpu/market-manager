@@ -71,6 +71,7 @@ fun NotificationScreen(
 }
 
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 fun NotificationCard(
     notification: Notification,
     onClick: () -> Unit

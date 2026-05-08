@@ -113,6 +113,7 @@ fun StatCard(title: String, value: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 fun UserCard(user: User, onClick: () -> Unit) {
     Card(
         onClick = onClick,
