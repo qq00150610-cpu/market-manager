@@ -89,6 +89,7 @@ fun NotificationScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationItem(
     notification: Notification,
