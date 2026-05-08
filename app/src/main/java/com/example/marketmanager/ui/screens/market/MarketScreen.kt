@@ -33,128 +33,129 @@ fun MarketScreen(
         (selectedStatus == null || merchant.status == selectedStatus)
     }
     
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        // 搜索栏
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
-            label = { Text("搜索商户") },
-            placeholder = { Text("输入商户名称或负责人") },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = "搜索") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            singleLine = true
-        )
-        
-        // 状态筛选
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            FilterChip(
-                selected = selectedStatus == null,
-                onClick = { selectedStatus = null },
-                label = { Text("全部") }
-            )
-            FilterChip(
-                selected = selectedStatus == MerchantStatus.ACTIVE,
-                onClick = { selectedStatus = MerchantStatus.ACTIVE },
-                label = { Text("营业中") },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = Color(0xFF4CAF50)
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = onAddMerchant,
+                containerColor = Primary
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "添加商户",
+                    tint = Color.White
                 )
-            )
-            FilterChip(
-                selected = selectedStatus == MerchantStatus.INACTIVE,
-                onClick = { selectedStatus = MerchantStatus.INACTIVE },
-                label = { Text("已关闭") },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = Color(0xFFF44336)
-                )
-            )
-            FilterChip(
-                selected = selectedStatus == MerchantStatus.PENDING,
-                onClick = { selectedStatus = MerchantStatus.PENDING },
-                label = { Text("待审核") },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = Color(0xFFFFC107)
-                )
-            )
+            }
         }
-        
-        // 统计信息
-        Row(
+    ) { innerPadding ->
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(16.dp)
         ) {
-            StatCard(
-                title = "总商户",
-                value = merchants.size.toString(),
-                modifier = Modifier.weight(1f)
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            StatCard(
-                title = "营业中",
-                value = merchants.count { it.status == MerchantStatus.ACTIVE }.toString(),
-                modifier = Modifier.weight(1f)
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            StatCard(
-                title = "待审核",
-                value = merchants.count { it.status == MerchantStatus.PENDING }.toString(),
-                modifier = Modifier.weight(1f)
-            )
-        }
-        
-        // 商户列表
-        if (filteredMerchants.isEmpty()) {
-            Box(
+            // 搜索栏
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                label = { Text("搜索商户") },
+                placeholder = { Text("输入商户名称或负责人") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "搜索") },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
-                contentAlignment = Alignment.Center
+                    .padding(bottom = 16.dp),
+                singleLine = true
+            )
+            
+            // 状态筛选
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    text = "没有找到商户",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                FilterChip(
+                    selected = selectedStatus == null,
+                    onClick = { selectedStatus = null },
+                    label = { Text("全部") }
+                )
+                FilterChip(
+                    selected = selectedStatus == MerchantStatus.ACTIVE,
+                    onClick = { selectedStatus = MerchantStatus.ACTIVE },
+                    label = { Text("营业中") },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = Color(0xFF4CAF50)
+                    )
+                )
+                FilterChip(
+                    selected = selectedStatus == MerchantStatus.INACTIVE,
+                    onClick = { selectedStatus = MerchantStatus.INACTIVE },
+                    label = { Text("已关闭") },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = Color(0xFFF44336)
+                    )
+                )
+                FilterChip(
+                    selected = selectedStatus == MerchantStatus.PENDING,
+                    onClick = { selectedStatus = MerchantStatus.PENDING },
+                    label = { Text("待审核") },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = Color(0xFFFFC107)
+                    )
                 )
             }
-        } else {
-            LazyColumn(
-                modifier = Modifier.weight(1f)
+            
+            // 统计信息
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                items(filteredMerchants) { merchant ->
-                    MerchantCard(
-                        merchant = merchant,
-                        onClick = { onMerchantClick(merchant) }
+                StatCard(
+                    title = "总商户",
+                    value = merchants.size.toString(),
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                StatCard(
+                    title = "营业中",
+                    value = merchants.count { it.status == MerchantStatus.ACTIVE }.toString(),
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                StatCard(
+                    title = "待审核",
+                    value = merchants.count { it.status == MerchantStatus.PENDING }.toString(),
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            
+            // 商户列表
+            if (filteredMerchants.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "没有找到商户",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
                 }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    items(filteredMerchants) { merchant ->
+                        MerchantCard(
+                            merchant = merchant,
+                            onClick = { onMerchantClick(merchant) }
+                        )
+                    }
+                }
             }
-        }
-        
-        // 添加商户按钮
-        FloatingActionButton(
-            onClick = onAddMerchant,
-            modifier = Modifier
-                .align(Alignment.End)
-                .padding(16.dp),
-            containerColor = Primary
-        ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "添加商户",
-                tint = Color.White
-            )
         }
     }
 }

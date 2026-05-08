@@ -29,115 +29,116 @@ fun GroupBuyScreen(
         selectedStatus == null || groupBuy.status == selectedStatus
     }
     
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        // 状态筛选
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            FilterChip(
-                selected = selectedStatus == null,
-                onClick = { selectedStatus = null },
-                label = { Text("全部") }
-            )
-            FilterChip(
-                selected = selectedStatus == GroupBuyStatus.ACTIVE,
-                onClick = { selectedStatus = GroupBuyStatus.ACTIVE },
-                label = { Text("进行中") },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = Color(0xFF4CAF50)
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = onAddGroupBuy,
+                containerColor = Primary
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "创建团购",
+                    tint = Color.White
                 )
-            )
-            FilterChip(
-                selected = selectedStatus == GroupBuyStatus.UPCOMING,
-                onClick = { selectedStatus = GroupBuyStatus.UPCOMING },
-                label = { Text("即将开始") },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = Color(0xFF2196F3)
-                )
-            )
-            FilterChip(
-                selected = selectedStatus == GroupBuyStatus.ENDED,
-                onClick = { selectedStatus = GroupBuyStatus.ENDED },
-                label = { Text("已结束") },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = Color(0xFF9E9E9E)
-                )
-            )
+            }
         }
-        
-        // 统计信息
-        Row(
+    ) { innerPadding ->
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(16.dp)
         ) {
-            StatCard(
-                title = "总团购",
-                value = groupBuys.size.toString(),
-                modifier = Modifier.weight(1f)
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            StatCard(
-                title = "进行中",
-                value = groupBuys.count { it.status == GroupBuyStatus.ACTIVE }.toString(),
-                modifier = Modifier.weight(1f)
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            StatCard(
-                title = "即将开始",
-                value = groupBuys.count { it.status == GroupBuyStatus.UPCOMING }.toString(),
-                modifier = Modifier.weight(1f)
-            )
-        }
-        
-        // 团购列表
-        if (filteredGroupBuys.isEmpty()) {
-            Box(
+            // 状态筛选
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
-                contentAlignment = Alignment.Center
+                    .padding(bottom = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(
-                    text = "没有找到团购活动",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                FilterChip(
+                    selected = selectedStatus == null,
+                    onClick = { selectedStatus = null },
+                    label = { Text("全部") }
+                )
+                FilterChip(
+                    selected = selectedStatus == GroupBuyStatus.ACTIVE,
+                    onClick = { selectedStatus = GroupBuyStatus.ACTIVE },
+                    label = { Text("进行中") },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = Color(0xFF4CAF50)
+                    )
+                )
+                FilterChip(
+                    selected = selectedStatus == GroupBuyStatus.UPCOMING,
+                    onClick = { selectedStatus = GroupBuyStatus.UPCOMING },
+                    label = { Text("即将开始") },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = Color(0xFF2196F3)
+                    )
+                )
+                FilterChip(
+                    selected = selectedStatus == GroupBuyStatus.ENDED,
+                    onClick = { selectedStatus = GroupBuyStatus.ENDED },
+                    label = { Text("已结束") },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = Color(0xFF9E9E9E)
+                    )
                 )
             }
-        } else {
-            LazyColumn(
-                modifier = Modifier.weight(1f)
+            
+            // 统计信息
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                items(filteredGroupBuys) { groupBuy ->
-                    GroupBuyCard(
-                        groupBuy = groupBuy,
-                        onClick = { onGroupBuyClick(groupBuy) }
+                StatCard(
+                    title = "总团购",
+                    value = groupBuys.size.toString(),
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                StatCard(
+                    title = "进行中",
+                    value = groupBuys.count { it.status == GroupBuyStatus.ACTIVE }.toString(),
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                StatCard(
+                    title = "即将开始",
+                    value = groupBuys.count { it.status == GroupBuyStatus.UPCOMING }.toString(),
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            
+            // 团购列表
+            if (filteredGroupBuys.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "没有找到团购活动",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
                 }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    items(filteredGroupBuys) { groupBuy ->
+                        GroupBuyCard(
+                            groupBuy = groupBuy,
+                            onClick = { onGroupBuyClick(groupBuy) }
+                        )
+                    }
+                }
             }
-        }
-        
-        // 添加团购按钮
-        FloatingActionButton(
-            onClick = onAddGroupBuy,
-            modifier = Modifier
-                .align(Alignment.End)
-                .padding(16.dp),
-            containerColor = Primary
-        ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "创建团购",
-                tint = Color.White
-            )
         }
     }
 }

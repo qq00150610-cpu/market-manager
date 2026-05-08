@@ -33,111 +33,112 @@ fun MerchantScreen(
         (selectedCategory == null || product.category == selectedCategory)
     }
     
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        // 搜索栏
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
-            label = { Text("搜索商品") },
-            placeholder = { Text("输入商品名称") },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = "搜索") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            singleLine = true
-        )
-        
-        // 分类筛选
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            FilterChip(
-                selected = selectedCategory == null,
-                onClick = { selectedCategory = null },
-                label = { Text("全部") }
-            )
-            categories.forEach { category ->
-                FilterChip(
-                    selected = selectedCategory == category,
-                    onClick = { selectedCategory = category },
-                    label = { Text(category) }
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = onAddProduct,
+                containerColor = Primary
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "添加商品",
+                    tint = Color.White
                 )
             }
         }
-        
-        // 统计信息
-        Row(
+    ) { innerPadding ->
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(16.dp)
         ) {
-            StatCard(
-                title = "总商品",
-                value = products.size.toString(),
-                modifier = Modifier.weight(1f)
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            StatCard(
-                title = "在售",
-                value = products.count { it.status == ProductStatus.AVAILABLE }.toString(),
-                modifier = Modifier.weight(1f)
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            StatCard(
-                title = "缺货",
-                value = products.count { it.status == ProductStatus.OUT_OF_STOCK }.toString(),
-                modifier = Modifier.weight(1f)
-            )
-        }
-        
-        // 商品列表
-        if (filteredProducts.isEmpty()) {
-            Box(
+            // 搜索栏
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                label = { Text("搜索商品") },
+                placeholder = { Text("输入商品名称") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "搜索") },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
-                contentAlignment = Alignment.Center
+                    .padding(bottom = 16.dp),
+                singleLine = true
+            )
+            
+            // 分类筛选
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(
-                    text = "没有找到商品",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                FilterChip(
+                    selected = selectedCategory == null,
+                    onClick = { selectedCategory = null },
+                    label = { Text("全部") }
                 )
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier.weight(1f)
-            ) {
-                items(filteredProducts) { product ->
-                    ProductCard(
-                        product = product,
-                        onClick = { onProductClick(product) }
+                categories.forEach { category ->
+                    FilterChip(
+                        selected = selectedCategory == category,
+                        onClick = { selectedCategory = category },
+                        label = { Text(category) }
                     )
                 }
             }
-        }
-        
-        // 添加商品按钮
-        FloatingActionButton(
-            onClick = onAddProduct,
-            modifier = Modifier
-                .align(Alignment.End)
-                .padding(16.dp),
-            containerColor = Primary
-        ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "添加商品",
-                tint = Color.White
-            )
+            
+            // 统计信息
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                StatCard(
+                    title = "总商品",
+                    value = products.size.toString(),
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                StatCard(
+                    title = "在售",
+                    value = products.count { it.status == ProductStatus.AVAILABLE }.toString(),
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                StatCard(
+                    title = "缺货",
+                    value = products.count { it.status == ProductStatus.OUT_OF_STOCK }.toString(),
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            
+            // 商品列表
+            if (filteredProducts.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "没有找到商品",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    items(filteredProducts) { product ->
+                        ProductCard(
+                            product = product,
+                            onClick = { onProductClick(product) }
+                        )
+                    }
+                }
+            }
         }
     }
 }

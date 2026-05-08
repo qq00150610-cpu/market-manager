@@ -30,119 +30,122 @@ fun OrderScreen(
         selectedStatus == null || order.status == selectedStatus
     }
     
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        // 返回按钮和标题
-        Row(
+    Scaffold { innerPadding ->
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(16.dp)
         ) {
-            IconButton(onClick = onBack) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "返回"
-                )
-            }
-            Text(
-                text = "订单管理",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
-            )
-        }
-        
-        // 状态筛选
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            FilterChip(
-                selected = selectedStatus == null,
-                onClick = { selectedStatus = null },
-                label = { Text("全部") }
-            )
-            FilterChip(
-                selected = selectedStatus == OrderStatus.PENDING,
-                onClick = { selectedStatus = OrderStatus.PENDING },
-                label = { Text("待处理") },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = Color(0xFFFFC107)
-                )
-            )
-            FilterChip(
-                selected = selectedStatus == OrderStatus.CONFIRMED,
-                onClick = { selectedStatus = OrderStatus.CONFIRMED },
-                label = { Text("已确认") },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = Color(0xFF2196F3)
-                )
-            )
-            FilterChip(
-                selected = selectedStatus == OrderStatus.DELIVERED,
-                onClick = { selectedStatus = OrderStatus.DELIVERED },
-                label = { Text("已送达") },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = Color(0xFF4CAF50)
-                )
-            )
-        }
-        
-        // 统计信息
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            StatCard(
-                title = "总订单",
-                value = orders.size.toString(),
-                modifier = Modifier.weight(1f)
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            StatCard(
-                title = "待处理",
-                value = orders.count { it.status == OrderStatus.PENDING }.toString(),
-                modifier = Modifier.weight(1f)
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            StatCard(
-                title = "已完成",
-                value = orders.count { it.status == OrderStatus.DELIVERED }.toString(),
-                modifier = Modifier.weight(1f)
-            )
-        }
-        
-        // 订单列表
-        if (filteredOrders.isEmpty()) {
-            Box(
+            // 返回按钮和标题
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
-                contentAlignment = Alignment.Center
+                    .padding(bottom = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                IconButton(onClick = onBack) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "返回"
+                    )
+                }
                 Text(
-                    text = "没有找到订单",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    text = "订单管理",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold
                 )
             }
-        } else {
-            LazyColumn(
-                modifier = Modifier.weight(1f)
+            
+            // 状态筛选
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(filteredOrders) { order ->
-                    OrderCard(
-                        order = order,
-                        onClick = { onOrderClick(order) },
-                        onUpdateStatus = onUpdateStatus
+                FilterChip(
+                    selected = selectedStatus == null,
+                    onClick = { selectedStatus = null },
+                    label = { Text("全部") }
+                )
+                FilterChip(
+                    selected = selectedStatus == OrderStatus.PENDING,
+                    onClick = { selectedStatus = OrderStatus.PENDING },
+                    label = { Text("待处理") },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = Color(0xFFFFC107)
                     )
+                )
+                FilterChip(
+                    selected = selectedStatus == OrderStatus.CONFIRMED,
+                    onClick = { selectedStatus = OrderStatus.CONFIRMED },
+                    label = { Text("已确认") },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = Color(0xFF2196F3)
+                    )
+                )
+                FilterChip(
+                    selected = selectedStatus == OrderStatus.DELIVERED,
+                    onClick = { selectedStatus = OrderStatus.DELIVERED },
+                    label = { Text("已送达") },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = Color(0xFF4CAF50)
+                    )
+                )
+            }
+            
+            // 统计信息
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                StatCard(
+                    title = "总订单",
+                    value = orders.size.toString(),
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                StatCard(
+                    title = "待处理",
+                    value = orders.count { it.status == OrderStatus.PENDING }.toString(),
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                StatCard(
+                    title = "已完成",
+                    value = orders.count { it.status == OrderStatus.DELIVERED }.toString(),
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            
+            // 订单列表
+            if (filteredOrders.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "没有找到订单",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    items(filteredOrders) { order ->
+                        OrderCard(
+                            order = order,
+                            onClick = { onOrderClick(order) },
+                            onUpdateStatus = onUpdateStatus
+                        )
+                    }
                 }
             }
         }

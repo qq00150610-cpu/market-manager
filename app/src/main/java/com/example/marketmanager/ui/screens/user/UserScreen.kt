@@ -33,128 +33,129 @@ fun UserScreen(
         (selectedRole == null || user.role == selectedRole)
     }
     
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        // 搜索栏
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
-            label = { Text("搜索用户") },
-            placeholder = { Text("输入用户名或邮箱") },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = "搜索") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            singleLine = true
-        )
-        
-        // 角色筛选
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            FilterChip(
-                selected = selectedRole == null,
-                onClick = { selectedRole = null },
-                label = { Text("全部") }
-            )
-            FilterChip(
-                selected = selectedRole == UserRole.ADMIN,
-                onClick = { selectedRole = UserRole.ADMIN },
-                label = { Text("管理员") },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = Color(0xFFF44336)
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = onAddUser,
+                containerColor = Primary
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "添加用户",
+                    tint = Color.White
                 )
-            )
-            FilterChip(
-                selected = selectedRole == UserRole.MERCHANT,
-                onClick = { selectedRole = UserRole.MERCHANT },
-                label = { Text("商户") },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = Color(0xFF4CAF50)
-                )
-            )
-            FilterChip(
-                selected = selectedRole == UserRole.CONSUMER,
-                onClick = { selectedRole = UserRole.CONSUMER },
-                label = { Text("消费者") },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = Color(0xFF2196F3)
-                )
-            )
+            }
         }
-        
-        // 统计信息
-        Row(
+    ) { innerPadding ->
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(16.dp)
         ) {
-            StatCard(
-                title = "总用户",
-                value = users.size.toString(),
-                modifier = Modifier.weight(1f)
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            StatCard(
-                title = "管理员",
-                value = users.count { it.role == UserRole.ADMIN }.toString(),
-                modifier = Modifier.weight(1f)
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            StatCard(
-                title = "商户",
-                value = users.count { it.role == UserRole.MERCHANT }.toString(),
-                modifier = Modifier.weight(1f)
-            )
-        }
-        
-        // 用户列表
-        if (filteredUsers.isEmpty()) {
-            Box(
+            // 搜索栏
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                label = { Text("搜索用户") },
+                placeholder = { Text("输入用户名或邮箱") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "搜索") },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
-                contentAlignment = Alignment.Center
+                    .padding(bottom = 16.dp),
+                singleLine = true
+            )
+            
+            // 角色筛选
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(
-                    text = "没有找到用户",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                FilterChip(
+                    selected = selectedRole == null,
+                    onClick = { selectedRole = null },
+                    label = { Text("全部") }
+                )
+                FilterChip(
+                    selected = selectedRole == UserRole.ADMIN,
+                    onClick = { selectedRole = UserRole.ADMIN },
+                    label = { Text("管理员") },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = Color(0xFFF44336)
+                    )
+                )
+                FilterChip(
+                    selected = selectedRole == UserRole.MERCHANT,
+                    onClick = { selectedRole = UserRole.MERCHANT },
+                    label = { Text("商户") },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = Color(0xFF4CAF50)
+                    )
+                )
+                FilterChip(
+                    selected = selectedRole == UserRole.CONSUMER,
+                    onClick = { selectedRole = UserRole.CONSUMER },
+                    label = { Text("消费者") },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = Color(0xFF2196F3)
+                    )
                 )
             }
-        } else {
-            LazyColumn(
-                modifier = Modifier.weight(1f)
+            
+            // 统计信息
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                items(filteredUsers) { user ->
-                    UserCard(
-                        user = user,
-                        onClick = { onUserClick(user) }
+                StatCard(
+                    title = "总用户",
+                    value = users.size.toString(),
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                StatCard(
+                    title = "管理员",
+                    value = users.count { it.role == UserRole.ADMIN }.toString(),
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                StatCard(
+                    title = "商户",
+                    value = users.count { it.role == UserRole.MERCHANT }.toString(),
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            
+            // 用户列表
+            if (filteredUsers.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "没有找到用户",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
                 }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    items(filteredUsers) { user ->
+                        UserCard(
+                            user = user,
+                            onClick = { onUserClick(user) }
+                        )
+                    }
+                }
             }
-        }
-        
-        // 添加用户按钮
-        FloatingActionButton(
-            onClick = onAddUser,
-            modifier = Modifier
-                .align(Alignment.End)
-                .padding(16.dp),
-            containerColor = Primary
-        ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "添加用户",
-                tint = Color.White
-            )
         }
     }
 }
