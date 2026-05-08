@@ -23,11 +23,22 @@ class MainViewModel : ViewModel() {
     private val _groupBuys = MutableStateFlow(MockData.groupBuys)
     val groupBuys: StateFlow<List<GroupBuy>> = _groupBuys.asStateFlow()
 
+    private val _notifications = MutableStateFlow(MockData.notifications)
+    val notifications: StateFlow<List<Notification>> = _notifications.asStateFlow()
+
+    private val _promotions = MutableStateFlow(MockData.promotions)
+    val promotions: StateFlow<List<Promotion>> = _promotions.asStateFlow()
+
+    private val _markets = MutableStateFlow(MockData.markets)
+    val markets: StateFlow<List<Market>> = _markets.asStateFlow()
+
     // 统计数据
     val todayOrders: Int get() = _orders.value.size
     val todayIncome: Double get() = _orders.value.sumOf { it.totalAmount }
     val activeMerchants: Int get() = _merchants.value.count { it.status == MerchantStatus.ACTIVE }
     val pendingOrders: Int get() = _orders.value.count { it.status == OrderStatus.PENDING }
+    val revenueStats: RevenueStats get() = MockData.revenueStats
+    val merchantStats: MerchantStats get() = MockData.merchantStats
 
     // 商户管理
     fun addMerchant(merchant: Merchant) {
@@ -120,6 +131,45 @@ class MainViewModel : ViewModel() {
         return _users.value.filter { 
             it.name.contains(query, ignoreCase = true) || 
             it.email.contains(query, ignoreCase = true)
+        }
+    }
+
+    // 通知管理
+    fun markNotificationAsRead(notificationId: String) {
+        _notifications.value = _notifications.value.map {
+            if (it.id == notificationId) it.copy(isRead = true) else it
+        }
+    }
+
+    fun markAllNotificationsAsRead() {
+        _notifications.value = _notifications.value.map { it.copy(isRead = true) }
+    }
+
+    val unreadNotificationCount: Int get() = _notifications.value.count { !it.isRead }
+
+    // 营销活动管理
+    fun addPromotion(promotion: Promotion) {
+        _promotions.value = _promotions.value + promotion
+    }
+
+    fun updatePromotion(promotion: Promotion) {
+        _promotions.value = _promotions.value.map {
+            if (it.id == promotion.id) promotion else it
+        }
+    }
+
+    fun deletePromotion(promotionId: String) {
+        _promotions.value = _promotions.value.filter { it.id != promotionId }
+    }
+
+    // 市场管理
+    fun getMarketById(marketId: String): Market? {
+        return _markets.value.find { it.id == marketId }
+    }
+
+    fun updateMarket(market: Market) {
+        _markets.value = _markets.value.map {
+            if (it.id == market.id) market else it
         }
     }
 }

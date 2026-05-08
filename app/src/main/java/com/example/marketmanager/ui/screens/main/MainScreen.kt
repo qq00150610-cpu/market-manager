@@ -5,6 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
@@ -17,6 +18,8 @@ import com.example.marketmanager.ui.screens.groupbuy.GroupBuyScreen
 import com.example.marketmanager.ui.screens.profile.ProfileScreen
 import com.example.marketmanager.ui.screens.user.UserScreen
 import com.example.marketmanager.ui.screens.order.OrderScreen
+import com.example.marketmanager.ui.screens.notification.NotificationScreen
+import com.example.marketmanager.ui.screens.stats.StatisticsScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,11 +29,14 @@ fun MainScreen(
 ) {
     var selectedTab by remember { mutableStateOf(0) }
     var showOrderScreen by remember { mutableStateOf(false) }
+    var showNotificationScreen by remember { mutableStateOf(false) }
+    var showStatisticsScreen by remember { mutableStateOf(false) }
     
     val merchants by viewModel.merchants.collectAsState()
     val products by viewModel.products.collectAsState()
     val groupBuys by viewModel.groupBuys.collectAsState()
     val users by viewModel.users.collectAsState()
+    val orders by viewModel.orders.collectAsState()
     
     val tabs = listOf(
         TabItem("首页", Icons.Default.Home),
@@ -54,19 +60,27 @@ fun MainScreen(
                     containerColor = Primary
                 ),
                 actions = {
-                    IconButton(onClick = { /* 搜索 */ }) {
+                    IconButton(onClick = { showStatisticsScreen = true }) {
                         Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "搜索",
+                            imageVector = Icons.Default.BarChart,
+                            contentDescription = "统计",
                             tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
-                    IconButton(onClick = { /* 通知 */ }) {
-                        Icon(
-                            imageVector = Icons.Default.Notifications,
-                            contentDescription = "通知",
-                            tint = MaterialTheme.colorScheme.onPrimary
-                        )
+                    IconButton(onClick = { showNotificationScreen = true }) {
+                        BadgedBox(
+                            badge = {
+                                if (viewModel.unreadNotificationCount > 0) {
+                                    Badge { Text(viewModel.unreadNotificationCount.toString()) }
+                                }
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Notifications,
+                                contentDescription = "通知",
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
                     }
                 }
             )
@@ -89,8 +103,8 @@ fun MainScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            if (showOrderScreen) {
-                OrderScreen(
+            when {
+                showOrderScreen -> OrderScreen(
                     orders = orders,
                     onOrderClick = { /* 订单详情 */ },
                     onUpdateStatus = { orderId, status ->
@@ -98,9 +112,25 @@ fun MainScreen(
                     },
                     onBack = { showOrderScreen = false }
                 )
-            } else {
-                when (selectedTab) {
-                    0 -> HomeScreen(viewModel)
+                showNotificationScreen -> {
+                    val notifications by viewModel.notifications.collectAsState()
+                    NotificationScreen(
+                        notifications = notifications,
+                        onBack = { showNotificationScreen = false },
+                        onMarkAsRead = { viewModel.markNotificationAsRead(it) },
+                        onMarkAllAsRead = { viewModel.markAllNotificationsAsRead() }
+                    )
+                }
+                showStatisticsScreen -> StatisticsScreen(
+                    stats = viewModel.merchantStats,
+                    revenue = viewModel.revenueStats,
+                    onBack = { showStatisticsScreen = false }
+                )
+                else -> when (selectedTab) {
+                    0 -> HomeScreen(
+                        viewModel = viewModel,
+                        onViewOrders = { showOrderScreen = true }
+                    )
                     1 -> MarketScreen(
                         merchants = merchants,
                         onAddMerchant = { /* 添加商户 */ },
@@ -123,7 +153,8 @@ fun MainScreen(
                     )
                     5 -> ProfileScreen(
                         onLogout = onLogout,
-                        onViewOrders = { showOrderScreen = true }
+                        onViewOrders = { showOrderScreen = true },
+                        viewModel = viewModel
                     )
                 }
             }
@@ -137,7 +168,10 @@ data class TabItem(
 )
 
 @Composable
-fun HomeScreen(viewModel: MainViewModel) {
+fun HomeScreen(
+    viewModel: MainViewModel,
+    onViewOrders: () -> Unit
+) {
     val merchants by viewModel.merchants.collectAsState()
     val orders by viewModel.orders.collectAsState()
     
@@ -171,6 +205,17 @@ fun HomeScreen(viewModel: MainViewModel) {
                     color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f),
                     modifier = Modifier.padding(top = 8.dp)
                 )
+                Spacer(modifier = Modifier.height(12.dp))
+                OutlinedButton(
+                    onClick = onViewOrders,
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
+                ) {
+                    Icon(Icons.Default.ShoppingCart, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("查看订单")
+                }
             }
         }
         
@@ -299,7 +344,7 @@ fun QuickActionButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Icon(
                 imageVector = icon,

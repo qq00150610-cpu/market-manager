@@ -14,11 +14,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.marketmanager.ui.theme.Primary
+import com.example.marketmanager.viewmodel.MainViewModel
 
 @Composable
 fun ProfileScreen(
     onLogout: () -> Unit,
-    onViewOrders: () -> Unit = {}
+    onViewOrders: () -> Unit = {},
+    viewModel: MainViewModel? = null
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
     
@@ -81,19 +83,19 @@ fun ProfileScreen(
                 .padding(bottom = 24.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            StatCard(
+            StatItem(
                 title = "管理商户",
                 value = "12",
                 modifier = Modifier.weight(1f)
             )
             Spacer(modifier = Modifier.width(16.dp))
-            StatCard(
+            StatItem(
                 title = "处理订单",
                 value = "156",
                 modifier = Modifier.weight(1f)
             )
             Spacer(modifier = Modifier.width(16.dp))
-            StatCard(
+            StatItem(
                 title = "运行天数",
                 value = "45",
                 modifier = Modifier.weight(1f)
@@ -108,32 +110,55 @@ fun ProfileScreen(
             modifier = Modifier.padding(bottom = 16.dp)
         )
         
-        MenuCard(
+        MenuItem(
             icon = Icons.Default.Business,
             title = "商户管理",
-            subtitle = "管理入驻商户信息",
+            description = "管理入驻商户信息",
             onClick = { /* 跳转到商户管理 */ }
         )
         
-        MenuCard(
+        MenuItem(
             icon = Icons.Default.ShoppingCart,
             title = "商品管理",
             description = "管理市场内商品",
             onClick = { /* 跳转到商品管理 */ }
         )
         
-        MenuCard(
+        MenuItem(
             icon = Icons.Default.Group,
             title = "团购管理",
             description = "管理团购活动",
             onClick = { /* 跳转到团购管理 */ }
         )
         
-        MenuCard(
+        MenuItem(
             icon = Icons.Default.Receipt,
             title = "订单管理",
             description = "查看和处理订单",
             onClick = onViewOrders
+        )
+        
+        Spacer(modifier = Modifier.height(24.dp))
+        
+        Text(
+            text = "营销与推广",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+        
+        MenuItem(
+            icon = Icons.Default.LocalOffer,
+            title = "营销工具",
+            description = "优惠券、满减、限时抢购",
+            onClick = { /* 跳转到营销工具 */ }
+        )
+        
+        MenuItem(
+            icon = Icons.Default.BarChart,
+            title = "数据统计",
+            description = "收入、商户、品类统计",
+            onClick = { /* 跳转到数据统计 */ }
         )
         
         Spacer(modifier = Modifier.height(24.dp))
@@ -145,21 +170,21 @@ fun ProfileScreen(
             modifier = Modifier.padding(bottom = 16.dp)
         )
         
-        MenuCard(
+        MenuItem(
             icon = Icons.Default.Settings,
             title = "系统设置",
             description = "系统参数配置",
             onClick = { /* 跳转到系统设置 */ }
         )
         
-        MenuCard(
+        MenuItem(
             icon = Icons.Default.Notifications,
             title = "消息通知",
             description = "查看系统通知",
             onClick = { /* 跳转到消息通知 */ }
         )
         
-        MenuCard(
+        MenuItem(
             icon = Icons.Default.Help,
             title = "帮助中心",
             description = "使用帮助和常见问题",
@@ -218,7 +243,7 @@ fun ProfileScreen(
 }
 
 @Composable
-fun StatCard(
+fun StatItem(
     title: String,
     value: String,
     modifier: Modifier = Modifier
@@ -255,10 +280,9 @@ fun StatCard(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MenuCard(
+fun MenuItem(
     icon: ImageVector,
     title: String,
-    subtitle: String? = null,
     description: String? = null,
     onClick: () -> Unit
 ) {
@@ -294,14 +318,6 @@ fun MenuCard(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
-                
-                if (subtitle != null) {
-                    Text(
-                        text = subtitle,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                    )
-                }
                 
                 if (description != null) {
                     Text(
