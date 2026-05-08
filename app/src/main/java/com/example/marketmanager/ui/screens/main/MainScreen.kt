@@ -8,20 +8,36 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.marketmanager.ui.theme.Primary
+import com.example.marketmanager.viewmodel.MainViewModel
+import com.example.marketmanager.ui.screens.market.MarketScreen
+import com.example.marketmanager.ui.screens.merchant.MerchantScreen
+import com.example.marketmanager.ui.screens.groupbuy.GroupBuyScreen
+import com.example.marketmanager.ui.screens.profile.ProfileScreen
+import com.example.marketmanager.ui.screens.user.UserScreen
+import com.example.marketmanager.ui.screens.order.OrderScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    viewModel: MainViewModel = viewModel()
 ) {
     var selectedTab by remember { mutableStateOf(0) }
+    var showOrderScreen by remember { mutableStateOf(false) }
+    
+    val merchants by viewModel.merchants.collectAsState()
+    val products by viewModel.products.collectAsState()
+    val groupBuys by viewModel.groupBuys.collectAsState()
+    val users by viewModel.users.collectAsState()
     
     val tabs = listOf(
         TabItem("首页", Icons.Default.Home),
         TabItem("市场", Icons.Default.Store),
         TabItem("商户", Icons.Default.Business),
         TabItem("团购", Icons.Default.Group),
+        TabItem("用户", Icons.Default.People),
         TabItem("我的", Icons.Default.Person)
     )
     
@@ -73,12 +89,43 @@ fun MainScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            when (selectedTab) {
-                0 -> HomeScreen()
-                1 -> MarketScreen()
-                2 -> MerchantScreen()
-                3 -> GroupBuyScreen()
-                4 -> ProfileScreen(onLogout = onLogout)
+            if (showOrderScreen) {
+                OrderScreen(
+                    orders = orders,
+                    onOrderClick = { /* 订单详情 */ },
+                    onUpdateStatus = { orderId, status ->
+                        viewModel.updateOrderStatus(orderId, status)
+                    },
+                    onBack = { showOrderScreen = false }
+                )
+            } else {
+                when (selectedTab) {
+                    0 -> HomeScreen(viewModel)
+                    1 -> MarketScreen(
+                        merchants = merchants,
+                        onAddMerchant = { /* 添加商户 */ },
+                        onMerchantClick = { /* 商户详情 */ }
+                    )
+                    2 -> MerchantScreen(
+                        products = products,
+                        onAddProduct = { /* 添加商品 */ },
+                        onProductClick = { /* 商品详情 */ }
+                    )
+                    3 -> GroupBuyScreen(
+                        groupBuys = groupBuys,
+                        onAddGroupBuy = { /* 创建团购 */ },
+                        onGroupBuyClick = { /* 团购详情 */ }
+                    )
+                    4 -> UserScreen(
+                        users = users,
+                        onAddUser = { /* 添加用户 */ },
+                        onUserClick = { /* 用户详情 */ }
+                    )
+                    5 -> ProfileScreen(
+                        onLogout = onLogout,
+                        onViewOrders = { showOrderScreen = true }
+                    )
+                }
             }
         }
     }
@@ -90,7 +137,10 @@ data class TabItem(
 )
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(viewModel: MainViewModel) {
+    val merchants by viewModel.merchants.collectAsState()
+    val orders by viewModel.orders.collectAsState()
+    
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -116,7 +166,7 @@ fun HomeScreen() {
                     color = MaterialTheme.colorScheme.onPrimary
                 )
                 Text(
-                    text = "今天有 5 个新订单待处理",
+                    text = "今天有 ${viewModel.pendingOrders} 个新订单待处理",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f),
                     modifier = Modifier.padding(top = 8.dp)
@@ -133,13 +183,13 @@ fun HomeScreen() {
         ) {
             StatCard(
                 title = "今日订单",
-                value = "23",
+                value = viewModel.todayOrders.toString(),
                 modifier = Modifier.weight(1f)
             )
             Spacer(modifier = Modifier.width(16.dp))
             StatCard(
                 title = "今日收入",
-                value = "¥1,280",
+                value = "¥${String.format("%.2f", viewModel.todayIncome)}",
                 modifier = Modifier.weight(1f)
             )
         }
@@ -152,13 +202,13 @@ fun HomeScreen() {
         ) {
             StatCard(
                 title = "活跃商户",
-                value = "12",
+                value = viewModel.activeMerchants.toString(),
                 modifier = Modifier.weight(1f)
             )
             Spacer(modifier = Modifier.width(16.dp))
             StatCard(
                 title = "待处理",
-                value = "5",
+                value = viewModel.pendingOrders.toString(),
                 modifier = Modifier.weight(1f)
             )
         }
@@ -262,62 +312,6 @@ fun QuickActionButton(
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(top = 8.dp)
             )
-        }
-    }
-}
-
-@Composable
-fun MarketScreen() {
-    // 市场管理页面 - 待实现
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = androidx.compose.ui.Alignment.Center
-    ) {
-        Text("市场管理页面 - 开发中")
-    }
-}
-
-@Composable
-fun MerchantScreen() {
-    // 商户管理页面 - 待实现
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = androidx.compose.ui.Alignment.Center
-    ) {
-        Text("商户管理页面 - 开发中")
-    }
-}
-
-@Composable
-fun GroupBuyScreen() {
-    // 团购管理页面 - 待实现
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = androidx.compose.ui.Alignment.Center
-    ) {
-        Text("团购管理页面 - 开发中")
-    }
-}
-
-@Composable
-fun ProfileScreen(onLogout: () -> Unit) {
-    // 个人中心页面 - 待实现
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text("个人中心页面 - 开发中")
-        Spacer(modifier = Modifier.height(32.dp))
-        Button(
-            onClick = onLogout,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.error
-            )
-        ) {
-            Text("退出登录")
         }
     }
 }
