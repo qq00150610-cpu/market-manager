@@ -238,11 +238,9 @@ fun GroupBuyCard(
                         style = MaterialTheme.typography.bodySmall
                     )
                     
-                    @Suppress("DEPRECATION")
+                    val progressValue = (groupBuy.currentParticipants.toFloat() / groupBuy.minParticipants).coerceIn(0f, 1f)
                     LinearProgressIndicator(
-                        progress = { 
-                            (groupBuy.currentParticipants.toFloat() / groupBuy.minParticipants).coerceIn(0f, 1f) 
-                        },
+                        progress = progressValue,
                         modifier = Modifier
                             .width(100.dp)
                             .padding(top = 4.dp)

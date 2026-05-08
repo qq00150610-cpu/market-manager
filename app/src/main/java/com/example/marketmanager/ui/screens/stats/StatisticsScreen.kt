@@ -214,9 +214,9 @@ fun CategoryDistributionCard(categories: List<CategoryStat>) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                @Suppress("DEPRECATION")
+                val progressValue = (category.percentage / 100).toFloat()
                 LinearProgressIndicator(
-                    progress = { (category.percentage / 100).toFloat() },
+                    progress = progressValue,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(8.dp)

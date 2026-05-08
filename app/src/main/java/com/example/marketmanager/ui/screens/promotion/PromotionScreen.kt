@@ -233,11 +233,9 @@ fun PromotionCard(promotion: Promotion) {
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
-                @Suppress("DEPRECATION")
+                val progressValue = (promotion.usageCount.toFloat() / promotion.maxUsage)
                 LinearProgressIndicator(
-                    progress = {
-                        (promotion.usageCount.toFloat() / promotion.maxUsage)
-                    },
+                    progress = progressValue,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(6.dp)
