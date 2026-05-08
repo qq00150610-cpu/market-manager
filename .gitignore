@@ -13,3 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+# 机密信息文件
+secret.md
