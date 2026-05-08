@@ -1,5 +1,7 @@
 # 农贸市场管理系统
 
+[![Android CI](https://github.com/用户名/market-manager/actions/workflows/android.yml/badge.svg)](https://github.com/用户名/market-manager/actions/workflows/android.yml)
+
 一个基于Android的农贸市场管理应用，帮助市场管理者高效管理商户、用户和团购活动。
 
 ## 功能特性
