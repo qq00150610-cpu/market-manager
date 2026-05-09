@@ -61,7 +61,7 @@ interface ApiService {
 
     // 通知
     @GET("api/notifications")
-    suspend fun getNotifications(): Response<List<Notification>>
+    suspend fun getNotifications(): Response<List<AppNotification>>
 
     @PUT("api/notifications/{id}/read")
     suspend fun markNotificationRead(@Path("id") id: String): Response<SimpleResponse>

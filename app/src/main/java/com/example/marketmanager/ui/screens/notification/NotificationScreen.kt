@@ -12,13 +12,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.marketmanager.data.models.Notification
+import com.example.marketmanager.data.models.AppNotification
 import com.example.marketmanager.ui.theme.Primary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationScreen(
-    notifications: List<Notification>,
+    notifications: List<AppNotification>,
     onBack: () -> Unit,
     onMarkAsRead: (String) -> Unit,
     onMarkAllAsRead: () -> Unit
@@ -73,7 +73,7 @@ fun NotificationScreen(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun NotificationCard(
-    notification: Notification,
+    notification: AppNotification,
     onClick: () -> Unit
 ) {
     Card(

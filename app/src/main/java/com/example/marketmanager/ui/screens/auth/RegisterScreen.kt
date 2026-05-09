@@ -122,7 +122,7 @@ fun RegisterScreen(
                                 password.length < 6 -> { showError = true; errorMessage = "密码长度至少为6位" }
                                 else -> {
                                     showError = false
-                                    viewModel.register(name, email, password) { onRegisterSuccess() }
+                                    viewModel.register(name, email, password, phone) { onRegisterSuccess() }
                                 }
                             }
                         },

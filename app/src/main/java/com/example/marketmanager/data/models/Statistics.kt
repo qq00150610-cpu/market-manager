@@ -1,6 +1,6 @@
 package com.example.marketmanager.data.models
 
-data class Notification(
+data class AppNotification(
     val id: String,
     val type: String,
     val title: String,

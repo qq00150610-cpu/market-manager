@@ -32,11 +32,11 @@ object MockData {
     )
 
     val notifications = listOf(
-        Notification("1", "ORDER", "新订单通知", "消费者A下单购买了有机西红柿，请及时处理", false, "2024-03-16 09:15"),
-        Notification("2", "MERCHANT", "商户入驻审核", "老王肉铺的入驻申请已提交，请尽快审核", false, "2024-03-15 14:30"),
-        Notification("3", "PROMOTION", "团购活动即将结束", "有机蔬菜团购活动还剩3天结束，当前参与人数8/10", true, "2024-03-22 10:00"),
-        Notification("4", "SYSTEM", "系统维护通知", "系统将于2024-03-30 02:00-04:00进行例行维护", true, "2024-03-18 08:00"),
-        Notification("5", "PAYMENT", "支付成功通知", "订单#1的微信支付已到账 ¥17.00", true, "2024-03-15 10:35")
+        AppNotification("1", "ORDER", "新订单通知", "消费者A下单购买了有机西红柿，请及时处理", false, "2024-03-16 09:15"),
+        AppNotification("2", "MERCHANT", "商户入驻审核", "老王肉铺的入驻申请已提交，请尽快审核", false, "2024-03-15 14:30"),
+        AppNotification("3", "PROMOTION", "团购活动即将结束", "有机蔬菜团购活动还剩3天结束，当前参与人数8/10", true, "2024-03-22 10:00"),
+        AppNotification("4", "SYSTEM", "系统维护通知", "系统将于2024-03-30 02:00-04:00进行例行维护", true, "2024-03-18 08:00"),
+        AppNotification("5", "PAYMENT", "支付成功通知", "订单#1的微信支付已到账 ¥17.00", true, "2024-03-15 10:35")
     )
 
     val promotions = listOf(

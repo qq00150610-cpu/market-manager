@@ -1,5 +1,6 @@
 package com.example.marketmanager.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.marketmanager.data.MockData
@@ -9,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.io.IOException
 
 class MainViewModel : ViewModel() {
 
@@ -44,7 +46,7 @@ class MainViewModel : ViewModel() {
     val groupBuys: StateFlow<List<GroupBuy>> = _groupBuys.asStateFlow()
 
     private val _notifications = MutableStateFlow(MockData.notifications)
-    val notifications: StateFlow<List<Notification>> = _notifications.asStateFlow()
+    val notifications: StateFlow<List<AppNotification>> = _notifications.asStateFlow()
 
     private val _promotions = MutableStateFlow(MockData.promotions)
     val promotions: StateFlow<List<Promotion>> = _promotions.asStateFlow()
@@ -77,13 +79,15 @@ class MainViewModel : ViewModel() {
                             id = it.user.id,
                             name = it.user.name,
                             email = it.user.email,
-                            phone = "",
+                            phone = null,
                             role = it.user.role,
                             registrationDate = ""
                         )
                         // 登录成功后加载数据
                         loadAllData()
                         onSuccess()
+                    } ?: run {
+                        _errorMessage.value = "登录失败：响应数据为空"
                     }
                 } else {
                     val errBody = response.errorBody()?.string()
@@ -91,20 +95,25 @@ class MainViewModel : ViewModel() {
                     else if (errBody?.contains("不存在") == true) "用户不存在"
                     else "登录失败：${response.code()}"
                 }
-            } catch (e: Exception) {
-                // 网络不可用时使用本地Mock数据
+            } catch (e: IOException) {
+                // 仅网络不可达时使用本地Mock数据
+                Log.w("MainViewModel", "网络不可用，使用本地Mock数据", e)
                 _isLoggedIn.value = true
                 _currentUser.value = MockData.users.firstOrNull()
                 loadMockData()
                 _errorMessage.value = null
                 onSuccess()
+            } catch (e: Exception) {
+                // 其他异常（如Gson解析错误）显示给用户
+                Log.e("MainViewModel", "登录异常", e)
+                _errorMessage.value = "网络连接失败：${e.javaClass.simpleName}: ${e.message}"
             } finally {
                 _isLoading.value = false
             }
         }
     }
 
-    fun register(name: String, email: String, password: String, onSuccess: () -> Unit) {
+    fun register(name: String, email: String, password: String, phone: String = "", onSuccess: () -> Unit) {
         viewModelScope.launch {
             _isLoading.value = true
             _errorMessage.value = null
@@ -119,24 +128,29 @@ class MainViewModel : ViewModel() {
                         _isLoggedIn.value = true
                         _currentUser.value = User(
                             id = it.user.id, name = it.user.name,
-                            email = it.user.email, phone = "",
+                            email = it.user.email, phone = phone,
                             role = "CONSUMER", registrationDate = ""
                         )
                         loadAllData()
                         onSuccess()
+                    } ?: run {
+                        _errorMessage.value = "注册失败：响应数据为空"
                     }
                 } else {
                     val errBody = response.errorBody()?.string()
                     _errorMessage.value = if (errBody?.contains("已注册") == true) "该邮箱已注册"
                     else "注册失败：${response.code()}"
                 }
-            } catch (e: Exception) {
-                // 网络不可用时使用本地Mock数据
+            } catch (e: IOException) {
+                Log.w("MainViewModel", "网络不可用，使用本地Mock数据", e)
                 _isLoggedIn.value = true
                 _currentUser.value = MockData.users.firstOrNull()
                 loadMockData()
                 _errorMessage.value = null
                 onSuccess()
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "注册异常", e)
+                _errorMessage.value = "网络连接失败：${e.javaClass.simpleName}: ${e.message}"
             } finally {
                 _isLoading.value = false
             }
